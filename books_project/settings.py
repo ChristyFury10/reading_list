@@ -16,6 +16,11 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
+import environ
+environ.Env()
+environ.Env.read_env()
+import dj_database_url
+
 load_dotenv(
     os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
 )
@@ -28,7 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-im^nii!k4jbphmboe)-p1^+xcdocx624=+nt8t^m*dg4=s^=p#'
+SECRET_KEY = os.environ.get('SECRET_KEY', "123456789")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,13 +88,22 @@ WSGI_APPLICATION = 'books_project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('PASSWORD')
-    }
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'books',
+    'USER': os.environ['DB_USER'],
+    'PASSWORD': os.environ['DB_PW'],
+    'HOST': os.environ['DB_HOST'],
+    'PORT': '5432',
+  }
 }
 
+DATABASES = {
+    'default': dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
