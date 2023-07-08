@@ -19,6 +19,7 @@ class Home(TemplateView):
 class About(TemplateView):
     template_name = "about.html"
 
+
 class AuthorList(TemplateView):
     template_name = "author_list.html"
 
@@ -45,6 +46,11 @@ class AuthorDetail(DetailView):
     model = Author
     template_name = "author_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["booklists"] = BookList.objects.all()
+        return context
+
 class AuthorUpdate(UpdateView):
     model = Author
     fields = ['name', 'img', 'bio']
@@ -65,3 +71,13 @@ class BookCreate(View):
         author = Author.objects.get(pk=pk)
         Book.objects.create(title=title, author=author)
         return redirect('author_detail', pk=pk)
+    
+class BooklistBookAssoc(View):
+    
+    def get(self, request, pk, book_pk):
+        assoc = request.GET.get('assoc')
+        if assoc == "remove":
+            BookList.objects.get(pk=pk).books.remove(book_pk)
+        if assoc == "add":
+            BookList.objects.get(pk=pk).books.add(book_pk)
+        return redirect('home')
